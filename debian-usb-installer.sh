@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
 
+## debian-usb-installer.sh
+## VERSION: 1.0.0
+## LICENSE: The MIT License (MIT)
+## AUTHOR: jimmijo <jimmijo.dev@gmail.com>
+
+#### CONFIG ####
+
 USB="no"
 REPOSITORY_DEBIAN="http://cdimage.debian.org/debian-cd/"
 VERSION_DEBIAN="8.3.0"
 ARCHITECTURE_DEBIAN="amd64"
 TYPE_DEBIAN="cd:1"
 
+#### FUNCTION ####
+
+# Display the usage.
 function usage {
     cat <<EOF
 =============================================================================
@@ -44,6 +54,7 @@ Example:
 EOF
 }
 
+# Test if the user is root.
 function init {
     if [ "$(id -u)" != "0" ]
     then
@@ -52,6 +63,7 @@ function init {
     fi
 }
 
+# Parse the cli args.
 # $@: Argv
 function parseCli {
     local shortOpts="hu:r:d:a:t:"
@@ -76,6 +88,7 @@ function parseCli {
     fi
 }
 
+# Transform the params to the file nale.
 # $1: Version.
 # $2: Architecture.
 # $3: Type.
@@ -87,6 +100,7 @@ function dataToFile {
     echo "debian-${1}-${2}-${typeUper}-${numb}${4}"
 }
 
+# Transform the params to the file url jigdo.
 # $1: Repository.
 # $2: Version.
 # $3: Architecture.
@@ -96,11 +110,13 @@ function dataToUrl {
     echo "${1}${2}/${3}/jigdo-${type}/$(dataToFile $2 $3 $4 .jigdo)"
 }
 
+# Download the debian iso file.
 # $1: The online debian jigdo file.
 function downloadDebian {
     jigdo-lite --noask $1
 }
 
+# Check with the user the usb.
 # $1: The usb output.
 function checkUsb {
     fdisk -l | grep "${1}"
@@ -114,6 +130,7 @@ function checkUsb {
     done
 }
 
+# Copy the iso file to the usb.
 # $1: ISO file
 # $2: USB key.
 function copyDebianToUsb {
@@ -127,3 +144,5 @@ parseCli "$@" && \
 downloadDebian "$(dataToUrl ${REPOSITORY_DEBIAN} ${VERSION_DEBIAN} ${ARCHITECTURE_DEBIAN} ${TYPE_DEBIAN})" && \
 checkUsb "$USB" && \
 copyDebianToUsb "$(dataToFile ${VERSION_DEBIAN} ${ARCHITECTURE_DEBIAN} ${TYPE_DEBIAN} .iso)" "${USB}"
+
+#### END ####
